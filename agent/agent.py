@@ -93,7 +93,7 @@ class Agent:
             print(f"DEBUG - Error details: {traceback.format_exc()}")
             return f"Error: {str(e)}"
 
-    def process_message(self, user_input: str) -> str:
+    def process_message(self, user_input: str) -> tuple[str, list[str]]:
         """Process a user message and return the response."""
         try:
             # Add user message to memory
@@ -128,24 +128,25 @@ class Agent:
             response_text = response.choices[0].message['content']
 
             # Process any tool calls in the response
+            tool_results = []
             while '<tool>' in response_text:
                 match = re.search(r'<tool>(.*?)</tool>', response_text, re.DOTALL)
                 if not match:
                     break
                 tool_call = match.group(0)
                 tool_content = match.group(1)
-                print("Executing TOOL:", tool_call, tool_content)
-                tool_result = self.execute_tool(tool_call)
-                response_text = response_text.replace(tool_call, tool_result)
+                #print("Executing TOOL:", tool_call, tool_content)
+                tool_results.append(self.execute_tool(tool_call))
+                response_text = response_text.replace(tool_call, "")
 
             # Add assistant's response to memory
             self.memory.add_message("assistant", response_text)
-            return response_text
+            return response_text, tool_results
 
         except Exception as e:
             error_msg = self.prompts.get_prompt("error", error_message=str(e))
             self.memory.add_message("assistant", error_msg)
-            return error_msg
+            return error_msg, []
 
     @classmethod
     def get_available_models(cls):

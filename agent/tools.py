@@ -1,7 +1,8 @@
 from typing import List, Dict, Any, Callable
 import datetime
 import subprocess
-from .python_executor import PythonExecutor
+import sys
+from io import StringIO
 
 class Tool:
     def __init__(self, name: str, description: str, func: Callable):
@@ -50,11 +51,27 @@ def execute_cmd(**kwargs) -> str:
     except Exception as e:
         return f"Error executing command: {str(e)}"
 
-# Create a single executor instance for all Python code execution
-python_executor = PythonExecutor()
+def execute_code(code: str) -> tuple:
+    # Capture stdout
+    old_stdout = sys.stdout
+    captured_output = StringIO()
+    sys.stdout = captured_output
+
+    try:
+        # Create a namespace with builtins
+        namespace = {"__builtins__": __builtins__}
+        # Execute the code in this namespace
+        exec(code, namespace)
+        # Get captured output
+        output = captured_output.getvalue()
+        return output, None, True
+    except Exception as e:
+        return None, str(e), False
+    finally:
+        sys.stdout = old_stdout
 
 def execute_python(**kwargs) -> str:
-    """Execute Python code with full access to Python features."""
+    """Execute Python code."""
     code = kwargs.get('code', '')
     if not code:
         return "Error: No code provided"
@@ -65,11 +82,13 @@ def execute_python(**kwargs) -> str:
     
     # Replace escaped quotes with regular quotes
     code = code.replace('\\"', '"').replace("\\'", "'")
-    
-    output, error, success = python_executor.execute(code)
+
+    print("DEBUG Executing Python code:")
+    print(code)
+    output, error, success = execute_code(code)
     if not success:
         return f"Error: {error}"
-    return output if output else "Code executed successfully (no output)"
+    return output if output else "Code executed successfully"
 
 # Default tools
 DEFAULT_TOOLS = [
@@ -90,7 +109,7 @@ DEFAULT_TOOLS = [
     ),
     Tool(
         name="python",
-        description="Execute Python code with full access. Input: code (str). Example: <tool>python|code=\"print('Hello')\"</tool>",
+        description="Execute Python code. Input: code (str). Example: <tool>python|code=\"print('Hello')\"</tool>",
         func=execute_python
     )
 ]

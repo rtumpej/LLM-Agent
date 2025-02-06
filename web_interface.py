@@ -47,10 +47,11 @@ def chat():
     
     try:
         # Process the message through your agent
-        response = agent.process_message(user_message)
+        response, tool_results = agent.process_message(user_message)
+        print("Tool results: ", tool_results)
         # Format code blocks first, then convert markdown
         formatted_response = format_response(response)
-        return jsonify({'response': formatted_response})
+        return jsonify({'response': formatted_response, 'tool_results': tool_results})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

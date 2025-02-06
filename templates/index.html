@@ -163,6 +163,18 @@
                 const data = await response.json();
                 hideTypingIndicator();
                 addMessage(data.response, false);
+                
+                // Display tool results in console if available
+                if (data.tool_results) {
+                    const consoleOutput = document.getElementById('console-output');
+                    data.tool_results.forEach(result => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'console-message';
+                        resultElement.textContent = result;
+                        consoleOutput.appendChild(resultElement);
+                    });
+                    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                }
             } catch (error) {
                 console.error('Error:', error);
                 hideTypingIndicator();
