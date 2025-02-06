@@ -221,16 +221,162 @@ body {
 
 /* Code block styles */
 pre {
-    background-color: var(--background-primary);
+    background-color: #2d2d2d;  /* Dark gray background */
     padding: 1rem;
     border-radius: 0.5rem;
     overflow-x: auto;
     margin: 0.5rem 0;
+    border: 1px solid #404040;
+    color: #ffffff;  /* White text for contrast */
+}
+
+[data-theme="dark"] pre {
+    background-color: #1e1e1e;  /* Slightly darker background for dark mode */
+    border-color: #404040;
 }
 
 code {
     font-family: 'Fira Code', monospace;
     font-size: 0.9rem;
+    color: inherit;
+}
+
+/* Generic syntax highlighting for all languages */
+.token.comment {
+    color: #6A9955;  /* Green comments */
+}
+
+.token.string {
+    color: #ce9178;  /* Orange-pink strings */
+}
+
+.token.number {
+    color: #b5cea8;  /* Light green numbers */
+}
+
+.token.keyword {
+    color: #569cd6;  /* Blue keywords */
+}
+
+.token.function {
+    color: #dcdcaa;  /* Yellow functions */
+}
+
+.token.class-name {
+    color: #4ec9b0;  /* Turquoise class names */
+}
+
+.token.operator {
+    color: #d4d4d4;  /* Light gray operators */
+}
+
+.token.builtin {
+    color: #4ec9b0;  /* Turquoise built-ins */
+}
+
+.token.boolean {
+    color: #569cd6;  /* Blue booleans */
+}
+
+.token.punctuation {
+    color: #d4d4d4;  /* Light gray punctuation */
+}
+
+.token.property {
+    color: #9cdcfe;  /* Light blue properties */
+}
+
+.token.tag {
+    color: #569cd6;  /* Blue tags */
+}
+
+.token.attr-name {
+    color: #9cdcfe;  /* Light blue attribute names */
+}
+
+.token.attr-value {
+    color: #ce9178;  /* Orange-pink attribute values */
+}
+
+.token.regex {
+    color: #d16969;  /* Red regex */
+}
+
+.token.important {
+    color: #569cd6;  /* Blue important */
+}
+
+.token.variable {
+    color: #9cdcfe;  /* Light blue variables */
+}
+
+.token.constant {
+    color: #4fc1ff;  /* Bright blue constants */
+}
+
+/* Language-specific overrides */
+.language-json .token.property {
+    color: #9cdcfe;  /* Light blue for JSON properties */
+}
+
+.language-html .token.tag {
+    color: #569cd6;  /* Blue for HTML tags */
+}
+
+.language-css .token.property {
+    color: #9cdcfe;  /* Light blue for CSS properties */
+}
+
+.language-css .token.function {
+    color: #dcdcaa;  /* Yellow for CSS functions */
+}
+
+.language-javascript .token.keyword {
+    color: #569cd6;  /* Blue for JavaScript keywords */
+}
+
+.language-bash .token.function {
+    color: #dcdcaa;  /* Yellow for bash commands */
+}
+
+/* Inline code style */
+:not(pre) > code {
+    background-color: #2d2d2d;  /* Dark gray for inline code */
+    padding: 0.2em 0.4em;
+    border-radius: 0.3em;
+    font-size: 0.9em;
+    border: 1px solid #404040;
+    color: #9cdcfe;  /* Light blue for inline code */
+}
+
+[data-theme="dark"] :not(pre) > code {
+    background-color: #1e1e1e;  /* Slightly darker for dark mode */
+}
+
+/* Additional syntax elements */
+.token.doctype {
+    color: #808080;  /* Gray for doctypes */
+}
+
+.token.cdata {
+    color: #808080;  /* Gray for CDATA */
+}
+
+.token.prolog {
+    color: #808080;  /* Gray for prolog */
+}
+
+.token.namespace {
+    opacity: 0.7;  /* Slightly transparent */
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+
+.token.italic {
+    font-style: italic;
 }
 
 /* Pane headers */
