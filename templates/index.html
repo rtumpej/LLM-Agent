@@ -5,40 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Agent Chat</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --text-primary: #000000;
+            --text-secondary: #4b5563;
+            --message-user: #e3f2fd;
+            --message-agent: #f5f5f5;
+            --border-color: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --message-user: #1e3a8a;
+            --message-agent: #374151;
+            --border-color: #4b5563;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
         .chat-container {
             height: calc(100vh - 180px);
+            background-color: var(--bg-secondary);
         }
+
         .message {
             max-width: 80%;
             margin: 8px;
             padding: 12px;
             border-radius: 12px;
+            white-space: pre-wrap;
         }
+
+        .message pre {
+            margin: 10px 0;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .message code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+        }
+
         .user-message {
-            background-color: #e3f2fd;
+            background-color: var(--message-user);
             margin-left: auto;
+            color: var(--text-primary);
         }
+
         .agent-message {
-            background-color: #f5f5f5;
+            background-color: var(--message-agent);
             margin-right: auto;
+            color: var(--text-primary);
         }
+
         .typing-indicator {
             display: none;
             margin: 8px;
             padding: 12px;
-            background-color: #f5f5f5;
+            background-color: var(--message-agent);
             border-radius: 12px;
         }
+
         .dot {
             display: inline-block;
             width: 8px;
             height: 8px;
             margin-right: 3px;
-            background-color: #90a4ae;
+            background-color: var(--text-secondary);
             border-radius: 50%;
             animation: wave 1.3s linear infinite;
         }
+
         .dot:nth-child(2) { animation-delay: -1.1s; }
         .dot:nth-child(3) { animation-delay: -0.9s; }
 
@@ -46,13 +94,53 @@
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-4px); }
         }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.8;
+        }
+
+        /* Input styles */
+        .chat-input {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .chat-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
     </style>
 </head>
-<body class="bg-gray-100">
+<body data-theme="light">
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path class="sun" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            <path class="moon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+    </button>
+
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-center mb-8">LLM Agent Chat</h1>
         
-        <div class="bg-white rounded-lg shadow-lg p-4">
+        <div class="bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg p-4" 
+             style="background-color: var(--bg-secondary);">
             <div id="chat-messages" class="chat-container overflow-y-auto mb-4">
                 <!-- Messages will be inserted here -->
             </div>
@@ -65,7 +153,7 @@
 
             <div class="flex gap-2">
                 <input type="text" id="message-input" 
-                    class="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    class="chat-input flex-grow px-4 py-2 border rounded-lg"
                     placeholder="Type your message...">
                 <button id="send-button" 
                     class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -75,18 +163,56 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
     <script>
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
         const chatMessages = document.getElementById('chat-messages');
         const typingIndicator = document.querySelector('.typing-indicator');
 
+        // Theme handling
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Set initial theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        function formatCode(content) {
+            // Replace markdown code blocks with properly formatted HTML
+            return content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
+                language = language || 'plaintext';
+                const highlightedCode = Prism.highlight(
+                    code.trim(),
+                    Prism.languages[language] || Prism.languages.plaintext,
+                    language
+                );
+                return `<pre class="language-${language}"><code class="language-${language}">${highlightedCode}</code></pre>`;
+            }).replace(/`([^`]+)`/g, '<code>$1</code>'); // Handle inline code
+        }
+
         function addMessage(content, isUser) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'agent-message'}`;
-            messageDiv.textContent = content;
+            
+            // Format code blocks if present
+            messageDiv.innerHTML = formatCode(content);
+            
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Highlight any code blocks in the message
+            messageDiv.querySelectorAll('pre code').forEach((block) => {
+                Prism.highlightElement(block);
+            });
         }
 
         function showTypingIndicator() {
