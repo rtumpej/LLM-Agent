@@ -3,6 +3,8 @@ import datetime
 import subprocess
 import sys
 from io import StringIO
+from glob import glob
+import os
 
 class Tool:
     def __init__(self, name: str, description: str, func: Callable):
@@ -95,6 +97,37 @@ def execute_python(**kwargs) -> str:
         return f"Error: {error}"
     return output if output else "Code executed successfully"
 
+def search_files(**kwargs) -> str:
+    """Search for files using a pattern."""
+    pattern = kwargs.get('pattern', '')
+    if not pattern:
+        return "Error: No search pattern provided"
+
+    # Remove surrounding quotes if present
+    if (pattern.startswith('"') and pattern.endswith('"')) or (pattern.startswith("'") and pattern.endswith("'")):
+        pattern = pattern[1:-1]
+    
+    try:
+        matches = glob(pattern, recursive=True)
+        
+        if not matches:
+            return f"No files found matching the pattern: {pattern}"
+        
+        result = f"Found {len(matches)} file(s):\n"
+        for file in matches:
+            size = os.path.getsize(file)
+            if size < 1024:
+                size_str = f"{size} B"
+            elif size < 1024*1024:
+                size_str = f"{size/1024:.1f} KB"
+            else:
+                size_str = f"{size/(1024*1024):.1f} MB"
+            result += f"{file} ({size_str})\n"
+        
+        return result
+    except Exception as e:
+        return f"Error searching files: {str(e)}"
+
 # Default tools
 DEFAULT_TOOLS = [
     Tool(
@@ -116,6 +149,11 @@ DEFAULT_TOOLS = [
         name="python",
         description="Execute Python code. Input: code (str). Example: <tool>python|code=\"print('Hello')\"</tool>",
         func=execute_python
+    ),
+    Tool(
+        name="search",
+        description="Search for files using a pattern (supports * and ** wildcards). Input: pattern (str). Example: <tool>search|pattern=\"**/*.py\"</tool>",
+        func=search_files
     )
 ]
 
