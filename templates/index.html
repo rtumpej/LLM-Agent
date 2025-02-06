@@ -43,12 +43,13 @@
         }
 
         .main-container {
-            flex: 1;
+            width: 100%;
+            max-width: 60rem;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            padding: 1rem;
-            overflow: hidden;
         }
 
         .chat-wrapper {
@@ -150,13 +151,13 @@
         }
 
         .chat-input {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-primary);
             color: var(--text-primary);
             border-color: var(--border-color);
             flex: 1;
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
-            min-height: 42px;
+            margin-right: 1rem;
         }
 
         .chat-input:focus {
@@ -195,7 +196,7 @@
     </button>
 
     <div class="main-container">
-        <h1 class="text-3xl font-bold text-center">LLM Agent Chat</h1>
+        <h1 class="text-3xl font-bold text-center">Marjan the Agent</h1>
         
         <div class="chat-wrapper">
             <div id="chat-messages" class="chat-container">
@@ -256,20 +257,32 @@
             }).replace(/`([^`]+)`/g, '<code>$1</code>'); // Handle inline code
         }
 
-        function addMessage(content, isUser) {
+        function addMessage(content, isUser = false) {
+            const messagesDiv = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'agent-message'}`;
             
-            // Format code blocks if present
-            messageDiv.innerHTML = formatCode(content);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = isUser ? escapeHtml(content) : content;
             
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
             
-            // Highlight any code blocks in the message
-            messageDiv.querySelectorAll('pre code').forEach((block) => {
-                Prism.highlightElement(block);
-            });
+            // Highlight code blocks
+            if (!isUser) {
+                messageDiv.querySelectorAll('pre code').forEach((block) => {
+                    Prism.highlightElement(block);
+                });
+            }
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function showTypingIndicator() {

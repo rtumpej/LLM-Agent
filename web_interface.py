@@ -3,6 +3,7 @@ from agent.agent import Agent  # Import your Agent class
 import os
 from dotenv import load_dotenv
 import re
+import markdown
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,21 +15,17 @@ agent = None
 if os.getenv("OPENAI_API_KEY"):
     agent = Agent()
 
-def format_response(text):
-    """Format the response to properly handle code blocks and other markdown elements."""
-    # Replace triple backtick code blocks with proper markdown
-    text = re.sub(
-        r'```(\w+)?\n(.*?)```',
-        lambda m: f"```{m.group(1) or 'plaintext'}\n{m.group(2).strip()}\n```",
-        text,
-        flags=re.DOTALL
-    )
+def format_response(response):
+    # First handle code blocks with language specification
+    code_block_pattern = r'```(\w+)?\n(.*?)\n```'
+    response = re.sub(code_block_pattern, lambda m: 
+        f'<pre><code class="language-{m.group(1) or "plaintext"}">{m.group(2)}</code></pre>', 
+        response, flags=re.DOTALL)
     
-    # Ensure proper spacing around code blocks
-    text = re.sub(r'(\n```\w*\n)', r'\n\1', text)
-    text = re.sub(r'(\n```\n)', r'\1\n', text)
+    # Then convert the rest of markdown
+    response = markdown.markdown(response)
     
-    return text
+    return response
 
 @app.route('/')
 def home():
@@ -47,7 +44,7 @@ def chat():
     try:
         # Process the message through your agent
         response = agent.process_message(user_message)
-        # Format the response for better code display
+        # Format code blocks first, then convert markdown
         formatted_response = format_response(response)
         return jsonify({'response': formatted_response})
     except Exception as e:
