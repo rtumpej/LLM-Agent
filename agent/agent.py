@@ -7,7 +7,7 @@ from .prompts import Prompts
 from .memory import Memory
 
 class Agent:
-    def __init__(self, model: str = "gpt-4-0613"):
+    def __init__(self, model: str = "gpt-4o"): #o3-mini, gpt-4-0613
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")

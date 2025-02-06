@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Agent Chat</title>
+    <title>Marjan the Agent</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <style>
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f3f4f6;
-            --text-primary: #000000;
+            --text-primary: #111827;
             --text-secondary: #4b5563;
-            --message-user: #e3f2fd;
-            --message-agent: #f5f5f5;
+            --message-user: #dff2ff;
+            --message-agent: #c7c7c7;
             --border-color: #e5e7eb;
         }
 
@@ -21,10 +21,10 @@
             --bg-primary: #1a1a1a;
             --bg-secondary: #2d2d2d;
             --text-primary: #ffffff;
-            --text-secondary: #9ca3af;
-            --message-user: #1e3a8a;
-            --message-agent: #374151;
-            --border-color: #4b5563;
+            --text-secondary: #afafaf;
+            --message-user: #0f411c;
+            --message-agent: #424943;
+            --border-color: #4b634e;
         }
 
         html, body {
@@ -127,6 +127,42 @@
             30% { transform: translateY(-4px); }
         }
 
+        /* Theme toggle button styles */
+        #theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #theme-toggle:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .dark #theme-toggle:hover {
+            background-color: #1d4ed8;
+        }
+
+        #theme-toggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+
+        .dark #theme-toggle:focus {
+            box-shadow: 0 0 0 2px #1d4ed8;
+        }
+
+        .dark #theme-toggle .moon-icon {
+            color: #3b82f6;
+        }
+
         .theme-toggle {
             position: absolute;
             top: 1rem;
@@ -166,6 +202,26 @@
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
         }
 
+        [data-theme="dark"] .chat-input:focus {
+            box-shadow: 0 0 0 2px #1d4ed8;
+        }
+
+        #send-button {
+            background-color: #3b82f6;
+        }
+
+        #send-button:hover {
+            background-color: #2563eb;
+        }
+
+        [data-theme="dark"] #send-button {
+            background-color: #046900;
+        }
+
+        [data-theme="dark"] #send-button:hover {
+            background-color: #059900;
+        }
+
         /* Custom scrollbar for chat container */
         .chat-container::-webkit-scrollbar {
             width: 6px;
@@ -186,7 +242,7 @@
     </style>
 </head>
 <body data-theme="light">
-    <button class="theme-toggle" onclick="toggleTheme()">
+    <button id="theme-toggle" onclick="toggleTheme()">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path class="sun" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                 d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -210,12 +266,17 @@
             </div>
 
             <div class="input-container">
-                <input type="text" id="message-input" 
+                <textarea id="message-input" 
                     class="chat-input"
-                    placeholder="Type your message...">
+                    placeholder="Type your message... (Shift+Enter for new line)"
+                    rows="1"
+                    style="resize: none; min-height: 42px; max-height: 200px; overflow-y: auto;"
+                ></textarea>
                 <button id="send-button" 
-                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    Send
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -230,6 +291,78 @@
         const sendButton = document.getElementById('send-button');
         const chatMessages = document.getElementById('chat-messages');
         const typingIndicator = document.querySelector('.typing-indicator');
+        let isProcessing = false;
+
+        // Auto-resize textarea as user types
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Handle Shift+Enter for new line
+        messageInput.addEventListener('keydown', async function(e) {
+            if (e.key === 'Enter') {
+                if (e.shiftKey) {
+                    // Allow the default behavior (new line)
+                    return;
+                } else {
+                    // Prevent the default behavior and send message
+                    e.preventDefault();
+                    if (!isProcessing) {
+                        await sendMessage();
+                    }
+                }
+            }
+        });
+
+        function showTypingIndicator() {
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            typingIndicator.style.display = 'none';
+        }
+
+        async function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content || isProcessing) return;
+
+            try {
+                isProcessing = true;
+                addMessage(content, true);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                showTypingIndicator();
+
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: content })
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                hideTypingIndicator();
+                addMessage(data.response, false);
+            } catch (error) {
+                console.error('Error:', error);
+                hideTypingIndicator();
+                addMessage('Sorry, there was an error processing your message.', false);
+            } finally {
+                isProcessing = false;
+                messageInput.focus();
+            }
+        }
+
+        // Handle send button click
+        sendButton.addEventListener('click', async function() {
+            if (!isProcessing) {
+                await sendMessage();
+            }
+        });
 
         // Theme handling
         function toggleTheme() {
@@ -284,52 +417,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        function showTypingIndicator() {
-            typingIndicator.style.display = 'block';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function hideTypingIndicator() {
-            typingIndicator.style.display = 'none';
-        }
-
-        async function sendMessage() {
-            const content = messageInput.value.trim();
-            if (!content) return;
-
-            // Add user message
-            addMessage(content, true);
-            messageInput.value = '';
-
-            // Show typing indicator
-            showTypingIndicator();
-
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message: content })
-                });
-
-                const data = await response.json();
-                hideTypingIndicator();
-                addMessage(data.response, false);
-            } catch (error) {
-                console.error('Error:', error);
-                hideTypingIndicator();
-                addMessage('Sorry, there was an error processing your message.', false);
-            }
-        }
-
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
     </script>
 </body>
 </html>

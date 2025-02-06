@@ -25,7 +25,8 @@ Guidelines:
 4. Use appropriate tools when needed
 5. If you don't find relevant information in the history, say so clearly
 6. When using the Python tool, format multi-line code using a single set of quotes
-7. USE PYTHON to run system commands""",
+7. USE PYTHON to run system commands
+8. You have permission to run system commands, read / write files and access the full Python environment""",
             
             "user": "{user_input}",
             
