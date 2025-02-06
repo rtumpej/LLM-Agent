@@ -27,15 +27,46 @@
             --border-color: #4b5563;
         }
 
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
             transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 1rem;
+            overflow: hidden;
+        }
+
+        .chat-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Important for nested flex scrolling */
+            background-color: var(--bg-secondary);
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
         }
 
         .chat-container {
-            height: calc(100vh - 180px);
-            background-color: var(--bg-secondary);
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0; /* Important for nested flex scrolling */
+            padding-right: 0.5rem;
         }
 
         .message {
@@ -112,17 +143,44 @@
             opacity: 0.8;
         }
 
-        /* Input styles */
+        .input-container {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
         .chat-input {
             background-color: var(--bg-secondary);
             color: var(--text-primary);
             border-color: var(--border-color);
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            min-height: 42px;
         }
 
         .chat-input:focus {
             border-color: #3b82f6;
             outline: none;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Custom scrollbar for chat container */
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
     </style>
 </head>
@@ -136,12 +194,11 @@
         </svg>
     </button>
 
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-center mb-8">LLM Agent Chat</h1>
+    <div class="main-container">
+        <h1 class="text-3xl font-bold text-center">LLM Agent Chat</h1>
         
-        <div class="bg-opacity-50 backdrop-filter backdrop-blur-lg rounded-lg shadow-lg p-4" 
-             style="background-color: var(--bg-secondary);">
-            <div id="chat-messages" class="chat-container overflow-y-auto mb-4">
+        <div class="chat-wrapper">
+            <div id="chat-messages" class="chat-container">
                 <!-- Messages will be inserted here -->
             </div>
 
@@ -151,9 +208,9 @@
                 <div class="dot"></div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="input-container">
                 <input type="text" id="message-input" 
-                    class="chat-input flex-grow px-4 py-2 border rounded-lg"
+                    class="chat-input"
                     placeholder="Type your message...">
                 <button id="send-button" 
                     class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
