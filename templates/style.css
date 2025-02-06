@@ -545,3 +545,62 @@ h1, h2 {
 [data-theme="dark"] .console-output {
     background-color: var(--background-primary);
 }
+
+/* Code block styling */
+.code-block-wrapper {
+    margin: 1em 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: var(--background-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.code-language {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.copy-button {
+    padding: 4px 8px;
+    font-size: 0.9em;
+    color: var(--text-primary);
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+    background-color: var(--border-color);
+}
+
+.copy-button:active {
+    transform: scale(0.95);
+}
+
+.copy-button.clicked {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 12px;
+    background-color: var(--background-primary);
+}
+
+.code-block-wrapper code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}

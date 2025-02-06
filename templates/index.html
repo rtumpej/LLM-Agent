@@ -351,6 +351,20 @@
             }
             return `tool-color-${toolColorMap[toolName] + 1}`;
         }
+
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block-wrapper').querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.classList.add('clicked');
+                setTimeout(() => {
+                    button.classList.remove('clicked');
+                }, 100);
+            }).catch(err => {
+                console.error('Failed to copy text:', err);
+            });
+        }
     </script>
 </body>
 </html>

@@ -19,7 +19,13 @@ def format_response(response):
     # First handle code blocks with language specification
     code_block_pattern = r'```(\w+)?\n(.*?)\n```'
     response = re.sub(code_block_pattern, lambda m: 
-        f'<pre><code class="language-{m.group(1) or "plaintext"}">{m.group(2)}</code></pre>', 
+        f'<div class="code-block-wrapper">'
+        f'<div class="code-header">'
+        f'<span class="code-language">{m.group(1) or "plaintext"}</span>'
+        f'<button class="copy-button" onclick="copyCode(this)">Copy</button>'
+        f'</div>'
+        f'<pre><code class="language-{m.group(1) or "plaintext"}">{m.group(2)}</code></pre>'
+        f'</div>', 
         response, flags=re.DOTALL)
     
     # Then convert the rest of markdown

@@ -29,6 +29,7 @@ Guidelines:
    - For multiline code, use \\n to separate lines
    - Example: <tool>python|code="x = 5\\nprint('Value of x:', x)"</tool>
    - don't use \\t for indentation but use 4 spaces instead
+   - Use print() to print the information
 7. USE PYTHON to run system commands by importing subprocess
 8. You have permission to run system commands, read/write files and access the full Python environment""",
             
