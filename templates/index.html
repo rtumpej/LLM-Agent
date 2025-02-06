@@ -164,13 +164,32 @@
                 hideTypingIndicator();
                 addMessage(data.response, false);
                 
-                // Display tool results in console if available
+                // Display formatted tool results in console if available
                 if (data.tool_results) {
                     const consoleOutput = document.getElementById('console-output');
                     data.tool_results.forEach(result => {
                         const resultElement = document.createElement('div');
                         resultElement.className = 'console-message';
-                        resultElement.textContent = result;
+                        
+                        // Create tool name span
+                        const toolSpan = document.createElement('span');
+                        toolSpan.className = `tool-name ${result.tool_name.toLowerCase().replace(/\s+/g, '_')}`;
+                        toolSpan.textContent = `[${result.tool_name}]`;
+                        
+                        // Create timestamp span
+                        const timeSpan = document.createElement('span');
+                        timeSpan.className = 'timestamp';
+                        timeSpan.textContent = ` [${result.timestamp}]`;
+                        
+                        // Create output span
+                        const outputSpan = document.createElement('span');
+                        outputSpan.className = 'output';
+                        outputSpan.textContent = `\n${result.output}`;
+                        
+                        resultElement.appendChild(toolSpan);
+                        resultElement.appendChild(timeSpan);
+                        resultElement.appendChild(outputSpan);
+                        
                         consoleOutput.appendChild(resultElement);
                     });
                     consoleOutput.scrollTop = consoleOutput.scrollHeight;

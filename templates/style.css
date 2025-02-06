@@ -350,3 +350,70 @@ h1, h2 {
     color: var(--text-secondary);
     margin-left: 0.5rem;
 }
+
+/* Console styling */
+.console-message {
+    padding: 4px 8px;
+    margin: 2px 0;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.4;
+    color: black;  /* Default text color for light mode */
+}
+
+.console-message .timestamp {
+    color: #666;  /* Grey for timestamp */
+}
+
+/* Tool-specific colors */
+.tool-name.get_time {
+    color: #00bcd4;  /* Cyan */
+}
+
+.tool-name.calculate {
+    color: #9c27b0;  /* Purple */
+}
+
+.tool-name.cmd {
+    color: #ff5722;  /* Deep Orange */
+}
+
+.tool-name.python {
+    color: #3f51b5;  /* Indigo */
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .console-message {
+    color: white;  /* White text for output in dark mode */
+}
+
+[data-theme="dark"] .console-message .timestamp {
+    color: #999;  /* Lighter grey for timestamp in dark mode */
+}
+
+[data-theme="dark"] .tool-name.get_time {
+    color: #4dd0e1;  /* Lighter Cyan */
+}
+
+[data-theme="dark"] .tool-name.calculate {
+    color: #ce93d8;  /* Lighter Purple */
+}
+
+[data-theme="dark"] .tool-name.cmd {
+    color: #ff8a65;  /* Lighter Deep Orange */
+}
+
+[data-theme="dark"] .tool-name.python {
+    color: #7986cb;  /* Lighter Indigo */
+}
+
+/* Console background colors */
+[data-theme="light"] .console-output {
+    background-color: white;  /* Light background for light theme */
+}
+
+[data-theme="dark"] .console-output {
+    background-color: #1e1e1e;  /* Dark background for dark theme */
+}

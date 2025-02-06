@@ -48,13 +48,17 @@ class Agent:
 
         return tool_name, params
 
-    def execute_tool(self, tool_call: str) -> str:
-        """Execute a tool call and return the result."""
+    def execute_tool(self, tool_call: str) -> dict:
+        """Execute a tool call and return the result with metadata."""
         try:
             # Extract tool content
             match = re.search(r'<tool>(.*?)</tool>', tool_call, re.DOTALL)
             if not match:
-                return "Error: Invalid tool call format"
+                return {
+                    "tool_name": "Unknown",
+                    "output": "Error: Invalid tool call format",
+                    "timestamp": self._get_timestamp()
+                }
             
             tool_content = match.group(1).strip()
             
@@ -84,17 +88,35 @@ class Agent:
             print(f"DEBUG - Parameters: {params}")
 
             if tool_name not in self.tools:
-                return f"Error: Unknown tool '{tool_name}'"
+                return {
+                    "tool_name": tool_name,
+                    "output": f"Error: Unknown tool '{tool_name}'",
+                    "timestamp": self._get_timestamp()
+                }
 
-            return self.tools[tool_name].execute(**params)
+            result = self.tools[tool_name].execute(**params)
+            return {
+                "tool_name": tool_name,
+                "output": result,
+                "timestamp": self._get_timestamp()
+            }
             
         except Exception as e:
             import traceback
             print(f"DEBUG - Error details: {traceback.format_exc()}")
-            return f"Error: {str(e)}"
+            return {
+                "tool_name": tool_name if 'tool_name' in locals() else "Unknown",
+                "output": f"Error: {str(e)}",
+                "timestamp": self._get_timestamp()
+            }
 
-    def process_message(self, user_input: str) -> tuple[str, list[str]]:
-        """Process a user message and return the response."""
+    def _get_timestamp(self) -> str:
+        """Get current timestamp in a readable format."""
+        from datetime import datetime
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def process_message(self, user_input: str) -> tuple[str, list[dict]]:
+        """Process a user message and return the response with tool results."""
         try:
             # Add user message to memory
             self.memory.add_message("user", user_input)
@@ -135,7 +157,6 @@ class Agent:
                     break
                 tool_call = match.group(0)
                 tool_content = match.group(1)
-                #print("Executing TOOL:", tool_call, tool_content)
                 tool_results.append(self.execute_tool(tool_call))
                 response_text = response_text.replace(tool_call, "")
 
