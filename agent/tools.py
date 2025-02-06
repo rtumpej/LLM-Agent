@@ -29,8 +29,13 @@ def calculate(**kwargs) -> str:
 def execute_cmd(**kwargs) -> str:
     """Execute a terminal command."""
     command = kwargs.get('command', '')
+
     if not command:
         return "Error: No command provided"
+
+    # Remove surrounding quotes if present
+    if (command.startswith('"') and command.endswith('"')) or (command.startswith("'") and command.endswith("'")):
+        command = command[1:-1]
     
     try:
         # Execute command and capture output
