@@ -37,3 +37,9 @@ ENV/
 *.log
 .coverage
 htmlcov/
+
+# Conversation History
+conversation_history/
+*.conversation
+*_history.json
+*_chat_history.json
