@@ -37,7 +37,7 @@ body {
 #theme-toggle {
     position: fixed;
     top: 1rem;
-    right: 1rem;
+    right: 4rem;
     z-index: 1000;
     background: none;
     border: none;
@@ -49,10 +49,11 @@ body {
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s;
+    background-color: var(--background-secondary);
 }
 
 #theme-toggle:hover {
-    background-color: var(--background-secondary);
+    background-color: var(--border-color);
 }
 
 .sun { display: none; }
@@ -86,6 +87,18 @@ body {
     padding: 1rem;
     overflow: auto;
     font-family: 'Fira Code', monospace;
+}
+
+.console-text {
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    background-color: var(--background-primary);
+    color: var(--text-primary);
+    height: calc(100% - 3rem);
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .chat-pane {
@@ -229,4 +242,111 @@ h1, h2 {
 #viewer-content, #console-output {
     height: calc(100% - 3rem);
     overflow: auto;
+}
+
+.system-nav {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+}
+
+.system-menu {
+    position: relative;
+}
+
+.system-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+    background-color: var(--background-secondary);
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.system-button:hover {
+    background-color: var(--border-color);
+}
+
+.system-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--text-primary);
+}
+
+.system-menu-content {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.5rem;
+    background-color: var(--background-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    min-width: 300px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.system-menu:hover .system-menu-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.menu-section {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.menu-section:last-child {
+    border-bottom: none;
+}
+
+.menu-section h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.menu-item {
+    margin: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.menu-item label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.menu-item input[type="password"],
+.menu-item select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.menu-item input[type="range"] {
+    width: 100%;
+}
+
+#temperature-value {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
 }

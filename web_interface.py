@@ -54,6 +54,23 @@ def chat():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/models', methods=['GET'])
+def get_models():
+    return jsonify(agent.get_available_models())
+
+@app.route('/settings', methods=['POST'])
+def update_settings():
+    data = request.json
+    try:
+        if 'model' in data:
+            agent.update_model(data['model'])
+        if 'temperature' in data:
+            # Store temperature for future use
+            app.config['TEMPERATURE'] = float(data['temperature'])
+        return jsonify({'status': 'success'})
+    except ValueError as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 400
+
 if __name__ == '__main__':
     if not agent:
         print("Warning: OPENAI_API_KEY not set. Chat functionality will be disabled.")

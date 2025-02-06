@@ -7,12 +7,23 @@ from .prompts import Prompts
 from .memory import Memory
 
 class Agent:
-    def __init__(self, model: str = "gpt-4"): #o3-mini, gpt-4-0613
+    AVAILABLE_MODELS = [
+        {"id": "gpt-4", "name": "GPT-4"},
+        {"id": "gpt-3.5-turbo", "name": "GPT-3.5 Turbo"},
+        {"id": "gpt-4o", "name": "GPT-4 Online"},
+        {"id": "gpt-4o-mini", "name": "GPT-4 Online Mini"}
+    ]
+
+    def __init__(self, model: str = "gpt-4"): 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
-        openai.api_key = api_key
+        
+        if model not in [m["id"] for m in self.AVAILABLE_MODELS]:
+            raise ValueError(f"Invalid model. Must be one of: {', '.join([m['id'] for m in self.AVAILABLE_MODELS])}")
+        
         self.model = model
+        self.api_key = api_key
         self.tools = {tool.name: tool for tool in DEFAULT_TOOLS}
         self.prompts = Prompts()
         self.memory = Memory()
@@ -135,3 +146,12 @@ class Agent:
             error_msg = self.prompts.get_prompt("error", error_message=str(e))
             self.memory.add_message("assistant", error_msg)
             return error_msg
+
+    @classmethod
+    def get_available_models(cls):
+        return cls.AVAILABLE_MODELS
+
+    def update_model(self, model: str):
+        if model not in [m["id"] for m in self.AVAILABLE_MODELS]:
+            raise ValueError(f"Invalid model. Must be one of: {', '.join([m['id'] for m in self.AVAILABLE_MODELS])}")
+        self.model = model

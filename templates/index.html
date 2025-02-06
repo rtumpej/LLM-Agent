@@ -9,7 +9,40 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body data-theme="light">
-    <button id="theme-toggle" onclick="toggleTheme()">
+    <nav class="system-nav">
+        <div class="system-menu">
+            <button class="system-button" title="System Settings">
+                <svg class="system-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </button>
+            <div class="system-menu-content">
+                <div class="menu-section">
+                    <h3>API Settings</h3>
+                    <div class="menu-item">
+                        <label for="api-key">API Key:</label>
+                        <input type="password" id="api-key" placeholder="Enter API key">
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <h3>Model Settings</h3>
+                    <div class="menu-item">
+                        <label for="model-select">Model:</label>
+                        <select id="model-select">
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <label for="temperature">Temperature:</label>
+                        <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7">
+                        <span id="temperature-value">0.7</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path class="sun" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                 d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -30,9 +63,7 @@
         <!-- Console Pane -->
         <div class="console-pane">
             <h2 class="text-xl font-bold mb-2">Console</h2>
-            <div id="console-output">
-                <!-- Console output will be inserted here -->
-            </div>
+            <div id="console-output" class="console-text"></div>
         </div>
 
         <!-- Chat Pane -->
@@ -202,6 +233,81 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Temperature slider handling
+        const temperatureSlider = document.getElementById('temperature');
+        const temperatureValue = document.getElementById('temperature-value');
+
+        temperatureSlider.addEventListener('input', function() {
+            temperatureValue.textContent = this.value;
+        });
+
+        // Save settings when changed
+        const apiKeyInput = document.getElementById('api-key');
+        const modelSelect = document.getElementById('model-select');
+
+        function saveSettings() {
+            const settings = {
+                model: modelSelect.value,
+                temperature: temperatureSlider.value,
+                apiKey: apiKeyInput.value
+            };
+            
+            // Save to backend
+            fetch('/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    console.error('Error saving settings:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error saving settings:', error);
+            });
+
+            // Save to local storage
+            localStorage.setItem('agentSettings', JSON.stringify(settings));
+        }
+
+        // Load available models from backend
+        async function loadModels() {
+            try {
+                const response = await fetch('/models');
+                const models = await response.json();
+                modelSelect.innerHTML = models.map(model => 
+                    `<option value="${model.id}">${model.name}</option>`
+                ).join('');
+                
+                // Load saved settings after models are loaded
+                loadSettings();
+            } catch (error) {
+                console.error('Error loading models:', error);
+            }
+        }
+
+        // Load settings when page loads
+        loadModels();
+
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('agentSettings') || '{}');
+            if (settings.model) modelSelect.value = settings.model;
+            if (settings.temperature) {
+                temperatureSlider.value = settings.temperature;
+                temperatureValue.textContent = settings.temperature;
+            }
+            if (settings.apiKey) apiKeyInput.value = settings.apiKey;
+        }
+
+        // Save settings when inputs change
+        apiKeyInput.addEventListener('change', saveSettings);
+        modelSelect.addEventListener('change', saveSettings);
+        temperatureSlider.addEventListener('change', saveSettings);
     </script>
 </body>
 </html>
