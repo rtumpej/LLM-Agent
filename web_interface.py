@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from agent.agent import Agent  # Import your Agent class
 import os
 from dotenv import load_dotenv
@@ -30,6 +30,10 @@ def format_response(response):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('templates', filename)
 
 @app.route('/chat', methods=['POST'])
 def chat():
