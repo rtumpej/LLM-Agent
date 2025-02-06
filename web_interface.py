@@ -81,8 +81,8 @@ def update_settings():
         if 'model' in data:
             agent.update_model(data['model'])
         if 'temperature' in data:
-            # Store temperature for future use
-            app.config['TEMPERATURE'] = float(data['temperature'])
+            temperature = float(data['temperature'])
+            agent.update_temperature(temperature)
         return jsonify({'status': 'success'})
     except ValueError as e:
         return jsonify({'status': 'error', 'message': str(e)}), 400

@@ -173,7 +173,7 @@
                         
                         // Create tool name span
                         const toolSpan = document.createElement('span');
-                        toolSpan.className = `tool-name ${result.tool_name.toLowerCase().replace(/\s+/g, '_')}`;
+                        toolSpan.className = `tool-name ${getToolColor(result.tool_name)}`;
                         toolSpan.textContent = `[${result.tool_name}]`;
                         
                         // Create timestamp span
@@ -339,6 +339,18 @@
         apiKeyInput.addEventListener('change', saveSettings);
         modelSelect.addEventListener('change', saveSettings);
         temperatureSlider.addEventListener('change', saveSettings);
+
+        let toolColorMap = {};
+        let nextColorIndex = 0;
+        const NUM_COLORS = 6;
+
+        function getToolColor(toolName) {
+            if (!(toolName in toolColorMap)) {
+                toolColorMap[toolName] = nextColorIndex;
+                nextColorIndex = (nextColorIndex + 1) % NUM_COLORS;
+            }
+            return `tool-color-${toolColorMap[toolName] + 1}`;
+        }
     </script>
 </body>
 </html>

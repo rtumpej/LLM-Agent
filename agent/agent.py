@@ -14,7 +14,7 @@ class Agent:
         {"id": "gpt-4o-mini", "name": "GPT-4 Online Mini"}
     ]
 
-    def __init__(self, model: str = "gpt-4"): 
+    def __init__(self, model: str = "gpt-4", temperature: float = 0.7): 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
@@ -22,7 +22,11 @@ class Agent:
         if model not in [m["id"] for m in self.AVAILABLE_MODELS]:
             raise ValueError(f"Invalid model. Must be one of: {', '.join([m['id'] for m in self.AVAILABLE_MODELS])}")
         
+        if not 0 <= temperature <= 2:
+            raise ValueError("Temperature must be between 0 and 2")
+        
         self.model = model
+        self.temperature = temperature
         self.api_key = api_key
         self.tools = {tool.name: tool for tool in DEFAULT_TOOLS}
         self.prompts = Prompts()
@@ -144,7 +148,7 @@ class Agent:
             response = openai.ChatCompletion.create(
                 model=self.model,
                 messages=messages,
-                temperature=0.7
+                temperature=self.temperature
             )
 
             response_text = response.choices[0].message['content']
@@ -152,7 +156,7 @@ class Agent:
             # Process any tool calls in the response
             tool_results = []
             # We create separate response for memory which will include responses from the tools
-            response_text_memory = response_text
+            response_text_for_memory = response_text
             while '<tool>' in response_text:
                 match = re.search(r'<tool>(.*?)</tool>', response_text, re.DOTALL)
                 if not match:
@@ -162,10 +166,10 @@ class Agent:
                 tool_results.append(self.execute_tool(tool_call))
                 # we remove the tool call from the response
                 response_text = response_text.replace(tool_call, "")
-                response_text_memory = response_text_memory.replace(tool_call, tool_results[-1]["output"])
+                response_text_for_memory = response_text_for_memory.replace(tool_call, tool_results[-1]["output"])
 
             # Add assistant's response to memory
-            self.memory.add_message("assistant", response_text_memory)
+            self.memory.add_message("assistant", response_text_for_memory)
             return response_text, tool_results
 
         except Exception as e:
@@ -181,3 +185,9 @@ class Agent:
         if model not in [m["id"] for m in self.AVAILABLE_MODELS]:
             raise ValueError(f"Invalid model. Must be one of: {', '.join([m['id'] for m in self.AVAILABLE_MODELS])}")
         self.model = model
+
+    def update_temperature(self, temperature: float) -> None:
+        """Update the temperature setting for the agent."""
+        if not 0 <= temperature <= 2:
+            raise ValueError("Temperature must be between 0 and 2")
+        self.temperature = temperature
