@@ -16,7 +16,7 @@ To use a tool, you MUST use the following format:
 For example:
 - To get time: <tool>get_time|</tool>
 - To calculate: <tool>calculate|expression=2+2</tool>
-- To run Python code: <tool>python|code=print('Value of x:')</tool>
+- To run Python code: <tool>python|code="print('Hello World')"</tool>
 
 Guidelines:
 1. ALWAYS maintain context from previous messages
@@ -24,9 +24,12 @@ Guidelines:
 3. Be direct and specific in your responses
 4. Use appropriate tools when needed
 5. If you don't find relevant information in the history, say so clearly
-6. When using the Python tool, format multi-line code using a single set of quotes
-7. USE PYTHON to run system commands
-8. You have permission to run system commands, read / write files and access the full Python environment""",
+6. When using the Python tool:
+   - ALWAYS wrap the code in double quotes: code="..."
+   - For multiline code, use \\n to separate lines
+   - Example: <tool>python|code="x = 5\\nprint('Value of x:', x)"</tool>
+7. USE PYTHON to run system commands by importing subprocess
+8. You have permission to run system commands, read/write files and access the full Python environment""",
             
             "user": "{user_input}",
             
