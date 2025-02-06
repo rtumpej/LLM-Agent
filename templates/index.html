@@ -19,32 +19,50 @@
     </button>
 
     <div class="main-container">
-        <h1 class="text-3xl font-bold text-center">Marjan the Agent</h1>
-        
-        <div class="chat-wrapper">
-            <div id="chat-messages" class="chat-container">
-                <!-- Messages will be inserted here -->
+        <!-- Viewer Pane -->
+        <div class="viewer-pane">
+            <h2 class="text-xl font-bold mb-2">Viewer</h2>
+            <div id="viewer-content">
+                <!-- Viewer content will be inserted here -->
             </div>
+        </div>
 
-            <div class="typing-indicator">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+        <!-- Console Pane -->
+        <div class="console-pane">
+            <h2 class="text-xl font-bold mb-2">Console</h2>
+            <div id="console-output">
+                <!-- Console output will be inserted here -->
             </div>
+        </div>
 
-            <div class="input-container">
-                <textarea id="message-input" 
-                    class="chat-input"
-                    placeholder="Type your message... (Shift+Enter for new line)"
-                    rows="1"
-                    style="resize: none; min-height: 42px; max-height: 200px; overflow-y: auto;"
-                ></textarea>
-                <button id="send-button" 
-                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
+        <!-- Chat Pane -->
+        <div class="chat-pane">
+            <h1 class="text-3xl font-bold text-center">Marjan the Agent</h1>
+            <div class="chat-wrapper">
+                <div id="chat-messages" class="chat-container">
+                    <!-- Messages will be inserted here -->
+                </div>
+
+                <div class="typing-indicator">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+
+                <div class="input-container">
+                    <textarea id="message-input" 
+                        class="chat-input"
+                        placeholder="Type your message... (Shift+Enter for new line)"
+                        rows="1"
+                        style="resize: none; min-height: 42px; max-height: 200px; overflow-y: auto;"
+                    ></textarea>
+                    <button id="send-button" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -164,7 +182,7 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.innerHTML = isUser ? escapeHtml(content) : content;
+            contentDiv.innerHTML = isUser ? escapeHtml(content) : formatCode(content);
             
             messageDiv.appendChild(contentDiv);
             messagesDiv.appendChild(messageDiv);
