@@ -151,6 +151,8 @@ class Agent:
 
             # Process any tool calls in the response
             tool_results = []
+            # We create separate response for memory which will include responses from the tools
+            response_text_memory = response_text
             while '<tool>' in response_text:
                 match = re.search(r'<tool>(.*?)</tool>', response_text, re.DOTALL)
                 if not match:
@@ -158,10 +160,12 @@ class Agent:
                 tool_call = match.group(0)
                 tool_content = match.group(1)
                 tool_results.append(self.execute_tool(tool_call))
+                # we remove the tool call from the response
                 response_text = response_text.replace(tool_call, "")
+                response_text_memory = response_text_memory.replace(tool_call, tool_results[-1]["output"])
 
             # Add assistant's response to memory
-            self.memory.add_message("assistant", response_text)
+            self.memory.add_message("assistant", response_text_memory)
             return response_text, tool_results
 
         except Exception as e:
