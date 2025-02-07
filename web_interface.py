@@ -65,7 +65,7 @@ def chat():
         thinking_step_limit = 5
         
         try:
-            while has_more and step < thinking_step_limit:
+            while thinking and has_more and step < thinking_step_limit:
                 # Process the message through your agent
                 response, tool_results = agent.process_message(user_message, think_step=step, thinking=thinking)
                 
@@ -96,7 +96,7 @@ def chat():
                         'response': format_response(response),
                         'tool_results': formatted_tool_results,
                         'step': step,
-                        'is_final': not has_more or thinking_step_limit - step <= 0
+                        'is_final': not thinking or not has_more or thinking_step_limit - step <= 0
                     })
                 
                 step += 1

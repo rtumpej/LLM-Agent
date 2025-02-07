@@ -36,7 +36,7 @@ Guidelines:
             "user": "{user_input}",
             
             "error": "I encountered an error: {error_message}",
-            "thinking": """Does your last answer fully fulfill user request?
+            "thinking": """
 - User request:
 _____________
 {user_input}
@@ -56,8 +56,10 @@ If not:
 """,
 
             "thinking_init": """Plan a research and action plan to fulfill user request:
+-Describe 3 scenarios how to answer or fulfill the request, and pick the best one
 -Explain topic which user is asking about
--List possible actions which can help you fulfill user request""",
+-List possible actions which can help you fulfill user request
+""",
         }
 
     def get_prompt(self, prompt_type: str, **kwargs) -> str:
