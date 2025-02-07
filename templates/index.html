@@ -56,19 +56,23 @@
         </svg>
     </button>
 
-    <div class="main-container">
+    <div class="main-container" style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;">
         <!-- Viewer Pane -->
         <div class="viewer-pane">
             <h2 class="text-xl font-bold mb-2">Viewer</h2>
             <div id="viewer-content">
                 <!-- Viewer content will be inserted here -->
             </div>
+            <div class="resize-handle-horizontal"></div>
+            <div class="resize-handle-vertical"></div>
         </div>
 
         <!-- Console Pane -->
         <div class="console-pane">
             <h2 class="text-xl font-bold mb-2">Console</h2>
             <div id="console-output" class="console-text"></div>
+            <div class="resize-handle-horizontal"></div>
+            <div class="resize-handle-vertical"></div>
         </div>
 
         <!-- Chat Pane -->
@@ -429,6 +433,73 @@
                 console.error('Failed to copy text:', err);
             });
         }
+
+        // Initialize resizable panes
+        function initResizablePanes() {
+            let isResizing = false;
+            let currentHandle = null;
+            let startX, startY;
+            let startWidth, startHeight;
+            let startGridTemplateColumns, startGridTemplateRows;
+
+            const mainContainer = document.querySelector('.main-container');
+            const handles = document.querySelectorAll('.resize-handle-horizontal, .resize-handle-vertical');
+
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    currentHandle = handle;
+                    startX = e.clientX;
+                    startY = e.clientY;
+
+                    const pane = handle.parentElement;
+                    const computedStyle = window.getComputedStyle(mainContainer);
+                    startGridTemplateColumns = computedStyle.gridTemplateColumns;
+                    startGridTemplateRows = computedStyle.gridTemplateRows;
+
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', () => {
+                        isResizing = false;
+                        currentHandle = null;
+                        document.removeEventListener('mousemove', handleMouseMove);
+                    });
+
+                    e.preventDefault();
+                });
+            });
+
+            function handleMouseMove(e) {
+                if (!isResizing) return;
+
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                if (currentHandle.classList.contains('resize-handle-horizontal')) {
+                    const columns = startGridTemplateColumns.split(' ');
+                    const totalWidth = mainContainer.clientWidth;
+                    const newLeftWidth = (parseFloat(columns[0]) / totalWidth * 100 + (deltaX / totalWidth * 100));
+                    const newRightWidth = 100 - newLeftWidth;
+                    
+                    if (newLeftWidth > 20 && newLeftWidth < 80) {
+                        mainContainer.style.gridTemplateColumns = `${newLeftWidth}fr ${newRightWidth}fr`;
+                    }
+                }
+
+                if (currentHandle.classList.contains('resize-handle-vertical')) {
+                    const rows = startGridTemplateRows.split(' ');
+                    const totalHeight = mainContainer.clientHeight;
+                    const newTopHeight = (parseFloat(rows[0]) / totalHeight * 100 + (deltaY / totalHeight * 100));
+                    const newBottomHeight = 100 - newTopHeight;
+                    
+                    if (newTopHeight > 20 && newTopHeight < 80) {
+                        mainContainer.style.gridTemplateRows = `${newTopHeight}fr ${newBottomHeight}fr`;
+                    }
+                }
+            }
+        }
+
+        // Initialize resizable panes
+        initResizablePanes();
     </script>
 </body>
 </html>
