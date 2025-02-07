@@ -7,6 +7,8 @@
     --border-color: #e0e0e0;
     --chat-user-bg: #e3f2fd;
     --chat-agent-bg: #f5f5f5;
+    --message-user-bg: #e3f2fd;
+    --message-agent-bg: #f5f5f5;
     
     /* Light mode tool colors */
     --tool-color-1: #00bcd4;  /* Cyan */
@@ -26,6 +28,8 @@
     --border-color: #404040;
     --chat-user-bg: #2d4a63;
     --chat-agent-bg: #2d2d2d;
+    --message-user-bg: #2d4a63;
+    --message-agent-bg: #2d2d2d;
     
     /* Dark mode tool colors */
     --tool-color-1: #4dd0e1;  /* Light Cyan */
@@ -147,23 +151,30 @@ body {
 }
 
 .message {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
+    padding: 1rem;
+    margin: 0.5rem 0;
     border-radius: 0.5rem;
-    max-width: 85%;
-    overflow-wrap: break-word;
+    max-width: 80%;
 }
 
 .user-message {
-    background-color: var(--chat-user-bg);
-    align-self: flex-end;
+    background-color: var(--message-user-bg);
+    margin-left: auto;
+    color: var(--text-primary);
 }
 
 .agent-message {
-    background-color: var(--chat-agent-bg);
-    align-self: flex-start;
+    background-color: var(--message-agent-bg);
+    margin-right: auto;
+    color: var(--text-primary);
+}
+
+.agent-message.thinking {
+    opacity: 0.7;
+}
+
+.agent-message.final {
+    opacity: 1;
 }
 
 .message-content {

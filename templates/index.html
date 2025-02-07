@@ -160,41 +160,72 @@
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
                 
-                // Add all responses
-                if (data.responses && data.responses.length > 0) {
-                    data.responses.forEach(response => {
-                        addMessage(response, false);
-                    });
-                }
+                // Create a reader for the event stream
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
                 
-                // Display formatted tool results in console if available
-                if (data.tool_results && data.tool_results.length > 0) {
-                    const consoleOutput = document.getElementById('console-output');
-                    data.tool_results.forEach(result => {
-                        const resultElement = document.createElement('div');
-                        resultElement.className = 'console-message';
+                while (true) {
+                    const {value, done} = await reader.read();
+                    if (done) break;
+                    
+                    // Append new data to buffer
+                    buffer += decoder.decode(value, {stream: true});
+                    
+                    // Process complete messages
+                    const messages = buffer.split('\n\n');
+                    buffer = messages.pop() || ''; // Keep incomplete message in buffer
+                    
+                    for (const message of messages) {
+                        if (!message.trim()) continue;
                         
-                        const toolSpan = document.createElement('span');
-                        toolSpan.className = `tool-name ${getToolColor(result.tool_name)}`;
-                        toolSpan.textContent = `[${result.tool_name}]`;
+                        // Parse SSE data
+                        const dataMatch = message.match(/^data: (.+)$/m);
+                        if (!dataMatch) continue;
                         
-                        const timeSpan = document.createElement('span');
-                        timeSpan.className = 'timestamp';
-                        timeSpan.textContent = ` [${result.timestamp}]`;
+                        const data = JSON.parse(dataMatch[1]);
                         
-                        const outputSpan = document.createElement('span');
-                        outputSpan.className = 'output';
-                        outputSpan.textContent = `\n${result.output}`;
+                        // Handle error events
+                        if (message.startsWith('event: error')) {
+                            console.error('Error:', data.error);
+                            addMessage('Sorry, there was an error processing your message.', false);
+                            continue;
+                        }
                         
-                        resultElement.appendChild(toolSpan);
-                        resultElement.appendChild(timeSpan);
-                        resultElement.appendChild(outputSpan);
+                        // Add the response
+                        if (data.response) {
+                            addMessage(data.response, false);
+                        }
                         
-                        consoleOutput.appendChild(resultElement);
-                    });
-                    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        // Display tool results
+                        if (data.tool_results && data.tool_results.length > 0) {
+                            const consoleOutput = document.getElementById('console-output');
+                            data.tool_results.forEach(result => {
+                                const resultElement = document.createElement('div');
+                                resultElement.className = 'console-message';
+                                
+                                const toolSpan = document.createElement('span');
+                                toolSpan.className = `tool-name ${getToolColor(result.tool_name)}`;
+                                toolSpan.textContent = `[${result.tool_name}]`;
+                                
+                                const timeSpan = document.createElement('span');
+                                timeSpan.className = 'timestamp';
+                                timeSpan.textContent = ` [${result.timestamp}]`;
+                                
+                                const outputSpan = document.createElement('span');
+                                outputSpan.className = 'output';
+                                outputSpan.textContent = `\n${result.output}`;
+                                
+                                resultElement.appendChild(toolSpan);
+                                resultElement.appendChild(timeSpan);
+                                resultElement.appendChild(outputSpan);
+                                
+                                consoleOutput.appendChild(resultElement);
+                            });
+                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -239,10 +270,21 @@
             }).replace(/`([^`]+)`/g, '<code>$1</code>'); // Handle inline code
         }
 
-        function addMessage(content, isUser = false) {
+        function addMessage(content, isUser = false, isFinal = false) {
             const messagesDiv = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'agent-message'}`;
+            
+            // Add thinking/final class for agent messages
+            if (!isUser) {
+                if (content.includes('[FINAL]')) {
+                    messageDiv.classList.add('final');
+                    // Clean up the [FINAL] tags
+                    content = content.replace('[FINAL]', '').replace('[/FINAL]', '');
+                } else {
+                    messageDiv.classList.add('thinking');
+                }
+            }
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';

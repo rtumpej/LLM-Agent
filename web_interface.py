@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response
 from agent.agent import Agent  # Import Agent class from local agent directory
 import os
 from dotenv import load_dotenv
 import re
 import markdown
+import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,6 +34,12 @@ def format_response(response):
     
     return response
 
+def format_sse(data: dict, event=None) -> str:
+    msg = f"data: {json.dumps(data)}\n\n"
+    if event is not None:
+        msg = f"event: {event}\n{msg}"
+    return msg
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -50,52 +57,54 @@ def chat():
 
     data = request.get_json()
     user_message = data.get('message', '')
-    has_more = True
-    step = 0
-    all_tool_results = []
-    all_responses = []
     
-    try:
-        while has_more and step < 3:  # Maximum 3 steps
-            # Process the message through your agent
-            response, tool_results = agent.process_message(user_message, think_step=step, thinking=(step < 2))
-            
-            # Check if we're done
-            has_more = "[DONE]" not in response
-            
-            # Format tool results
-            formatted_tool_results = []
-            for result in tool_results:
-                tool_name = result.get('tool_name', 'Unknown Tool')
-                tool_output = result.get('output', '')
-                timestamp = result.get('timestamp', '')
-                formatted_result = {
-                    'tool_name': tool_name,
-                    'output': tool_output,
-                    'timestamp': timestamp,
-                    'type': tool_name.lower().replace(' ', '_')
-                }
-                formatted_tool_results.append(formatted_result)
-            
-            all_tool_results.extend(formatted_tool_results)
-            
-            # Clean up response and add to list
-            if "[DONE]" in response:
-                response = response.replace("[DONE]", "")
-            if response.strip():  # Only add non-empty responses
-                all_responses.append(response)
-            
-            step += 1
+    def generate():
+        has_more = True
+        step = 0
+        thinking = True
+        thinking_step_limit = 5
         
-        # Format all responses
-        formatted_responses = [format_response(r) for r in all_responses]
-        
-        return jsonify({
-            'responses': formatted_responses,
-            'tool_results': all_tool_results
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        try:
+            while has_more and step < thinking_step_limit:
+                # Process the message through your agent
+                response, tool_results = agent.process_message(user_message, think_step=step, thinking=thinking)
+                
+                # Check if we're done
+                has_more = "[/FINAL]" not in response
+                
+                # Format tool results
+                formatted_tool_results = []
+                for result in tool_results:
+                    tool_name = result.get('tool_name', 'Unknown Tool')
+                    tool_output = result.get('output', '')
+                    timestamp = result.get('timestamp', '')
+                    formatted_result = {
+                        'tool_name': tool_name,
+                        'output': tool_output,
+                        'timestamp': timestamp,
+                        'type': tool_name.lower().replace(' ', '_')
+                    }
+                    formatted_tool_results.append(formatted_result)
+                
+                # Clean up response
+                #if "[/FINAL]" in response:
+                #    response = response.replace("[DONE]", "")
+                
+                if response.strip():
+                    # Send response immediately
+                    yield format_sse({
+                        'response': format_response(response),
+                        'tool_results': formatted_tool_results,
+                        'step': step,
+                        'is_final': not has_more or thinking_step_limit - step <= 0
+                    })
+                
+                step += 1
+                
+        except Exception as e:
+            yield format_sse({'error': str(e)}, event='error')
+    
+    return Response(generate(), mimetype='text/event-stream')
 
 @app.route('/models', methods=['GET'])
 def get_models():

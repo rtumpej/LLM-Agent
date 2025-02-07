@@ -45,7 +45,7 @@ _____________
 _____________
 {last_response}
 _____________
-IMPORTANT:If your last response fulfill user request, or your last action is finished respond only with "[DONE]"
+IMPORTANT:If your last response fulfill user request, summarise the and nicely structure final response and finish message starting with "[FINAL]" and finish with "[/FINAL]"
 If not:
 - Follow Action Plan from you previous response
 - List possible next actions using your tools which can help you fulfill user request

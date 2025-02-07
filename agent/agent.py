@@ -158,6 +158,7 @@ class Agent:
                     messages.append({"role": "system", "content": think_msg})
 
             # Get response from OpenAI
+            print([d['role'] for d in messages])
             response = openai.ChatCompletion.create(
                 model=self.model,
                 messages=messages,
