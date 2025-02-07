@@ -35,7 +35,29 @@ Guidelines:
             
             "user": "{user_input}",
             
-            "error": "I encountered an error: {error_message}"
+            "error": "I encountered an error: {error_message}",
+            "thinking": """Does your last answer fully fulfill user request?
+- User request:
+_____________
+{user_input}
+_____________
+- Your last response
+_____________
+{last_response}
+_____________
+IMPORTANT:If your last response fulfill user request, or your last action is finished respond only with "[DONE]"
+If not:
+- Follow Action Plan from you previous response
+- List possible next actions using your tools which can help you fulfill user request
+- Judge if your last response was correct, correct it if necessary
+- Use your previous answers and output from tools to improve your and plan next action
+- Use tools to get additional information and actions to fulfill user request
+- When you have all information prepare a fulfilling response.
+""",
+
+            "thinking_init": """Plan a research and action plan to fulfill user request:
+-Explain topic which user is asking about
+-List possible actions which can help you fulfill user request""",
         }
 
     def get_prompt(self, prompt_type: str, **kwargs) -> str:

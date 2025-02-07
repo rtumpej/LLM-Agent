@@ -144,13 +144,13 @@
             const content = messageInput.value.trim();
             if (!content || isProcessing) return;
 
-            try {
-                isProcessing = true;
-                addMessage(content, true);
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                showTypingIndicator();
+            isProcessing = true;
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            showTypingIndicator();
+            addMessage(content, true);
 
+            try {
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
@@ -161,27 +161,29 @@
 
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
-                hideTypingIndicator();
-                addMessage(data.response, false);
+                
+                // Add all responses
+                if (data.responses && data.responses.length > 0) {
+                    data.responses.forEach(response => {
+                        addMessage(response, false);
+                    });
+                }
                 
                 // Display formatted tool results in console if available
-                if (data.tool_results) {
+                if (data.tool_results && data.tool_results.length > 0) {
                     const consoleOutput = document.getElementById('console-output');
                     data.tool_results.forEach(result => {
                         const resultElement = document.createElement('div');
                         resultElement.className = 'console-message';
                         
-                        // Create tool name span
                         const toolSpan = document.createElement('span');
                         toolSpan.className = `tool-name ${getToolColor(result.tool_name)}`;
                         toolSpan.textContent = `[${result.tool_name}]`;
                         
-                        // Create timestamp span
                         const timeSpan = document.createElement('span');
                         timeSpan.className = 'timestamp';
                         timeSpan.textContent = ` [${result.timestamp}]`;
                         
-                        // Create output span
                         const outputSpan = document.createElement('span');
                         outputSpan.className = 'output';
                         outputSpan.textContent = `\n${result.output}`;
@@ -196,9 +198,9 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                hideTypingIndicator();
                 addMessage('Sorry, there was an error processing your message.', false);
             } finally {
+                hideTypingIndicator();
                 isProcessing = false;
                 messageInput.focus();
             }

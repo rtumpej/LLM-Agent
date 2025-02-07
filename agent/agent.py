@@ -1,4 +1,5 @@
 import os
+from socket import MsgFlag
 from typing import List, Dict, Any
 import re
 import openai
@@ -119,17 +120,19 @@ class Agent:
         from datetime import datetime
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def process_message(self, user_input: str) -> tuple[str, list[dict]]:
+    def process_message(self, user_input: str, think_step: int, thinking: bool = False) -> tuple[str, list[dict]]:
         """Process a user message and return the response with tool results."""
         try:
-            # Add user message to memory
-            self.memory.add_message("user", user_input)
+            print("STEP", think_step)
+            if think_step == 0:
+                # Add user message to memory
+                self.memory.add_message("user", user_input)
 
             # Prepare the system message with available tools
             system_message = self.prompts.get_prompt(
                 "system",
                 tools="\n".join(f"- {name}: {tool.description}" 
-                              for name, tool in self.tools.items())
+                            for name, tool in self.tools.items())
             )
 
             # Create the conversation with history
@@ -138,11 +141,21 @@ class Agent:
             ]
             
             # Add recent conversation history
-            history = self.memory.get_conversation_history(last_n=10)
+            history = self.memory.get_conversation_history(last_n=5)
             messages.extend([
                 {"role": msg["role"], "content": msg["content"]}
                 for msg in history
             ])
+            
+            if thinking:
+                if think_step == 0:
+                    think_msg_init = self.prompts.get_prompt("thinking_init")
+                    messages.append({"role": "system", "content": think_msg_init})
+                else:
+                    last_user_input = [m for m in messages if m['role'] == "user"][-1]['content']
+                    think_msg = self.prompts.get_prompt("thinking",
+                        user_input=last_user_input, last_response=messages[-1]['content'])
+                    messages.append({"role": "system", "content": think_msg})
 
             # Get response from OpenAI
             response = openai.ChatCompletion.create(

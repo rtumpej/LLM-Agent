@@ -50,29 +50,50 @@ def chat():
 
     data = request.get_json()
     user_message = data.get('message', '')
+    has_more = True
+    step = 0
+    all_tool_results = []
+    all_responses = []
     
     try:
-        # Process the message through your agent
-        response, tool_results = agent.process_message(user_message)
-        print("Tool results: ", tool_results)
-        
-        # Format tool results with timestamp and tool name
-        formatted_tool_results = []
-        for result in tool_results:
-            tool_name = result.get('tool_name', 'Unknown Tool')
-            tool_output = result.get('output', '')
-            timestamp = result.get('timestamp', '')
-            formatted_result = {
-                'tool_name': tool_name,
-                'output': tool_output,
-                'timestamp': timestamp,
-                'type': tool_name.lower().replace(' ', '_')  # For CSS styling
-            }
-            formatted_tool_results.append(formatted_result)
+        while has_more and step < 3:  # Maximum 3 steps
+            # Process the message through your agent
+            response, tool_results = agent.process_message(user_message, think_step=step, thinking=(step < 2))
             
-        # Format code blocks first, then convert markdown
-        formatted_response = format_response(response)
-        return jsonify({'response': formatted_response, 'tool_results': formatted_tool_results})
+            # Check if we're done
+            has_more = "[DONE]" not in response
+            
+            # Format tool results
+            formatted_tool_results = []
+            for result in tool_results:
+                tool_name = result.get('tool_name', 'Unknown Tool')
+                tool_output = result.get('output', '')
+                timestamp = result.get('timestamp', '')
+                formatted_result = {
+                    'tool_name': tool_name,
+                    'output': tool_output,
+                    'timestamp': timestamp,
+                    'type': tool_name.lower().replace(' ', '_')
+                }
+                formatted_tool_results.append(formatted_result)
+            
+            all_tool_results.extend(formatted_tool_results)
+            
+            # Clean up response and add to list
+            if "[DONE]" in response:
+                response = response.replace("[DONE]", "")
+            if response.strip():  # Only add non-empty responses
+                all_responses.append(response)
+            
+            step += 1
+        
+        # Format all responses
+        formatted_responses = [format_response(r) for r in all_responses]
+        
+        return jsonify({
+            'responses': formatted_responses,
+            'tool_results': all_tool_results
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
