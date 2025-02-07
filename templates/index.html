@@ -70,7 +70,7 @@
         <!-- Console Pane -->
         <div class="console-pane">
             <h2 class="text-xl font-bold mb-2">Console</h2>
-            <div id="console-output" class="console-text"></div>
+            <pre id="console-output"></pre>
             <div class="resize-handle-horizontal"></div>
             <div class="resize-handle-vertical"></div>
         </div>
@@ -214,28 +214,23 @@
                         if (data.tool_results && data.tool_results.length > 0) {
                             const consoleOutput = document.getElementById('console-output');
                             data.tool_results.forEach(result => {
-                                const resultElement = document.createElement('div');
-                                resultElement.className = 'console-message';
+                                const toolText = `[${result.tool_name}]`;
+                                const timeText = ` [${result.timestamp}]`;
+                                const outputText = `\n${result.output}\n\n`;
                                 
                                 const toolSpan = document.createElement('span');
                                 toolSpan.className = `tool-name ${getToolColor(result.tool_name)}`;
-                                toolSpan.textContent = `[${result.tool_name}]`;
+                                toolSpan.textContent = toolText;
                                 
                                 const timeSpan = document.createElement('span');
                                 timeSpan.className = 'timestamp';
-                                timeSpan.textContent = ` [${result.timestamp}]`;
+                                timeSpan.textContent = timeText;
                                 
-                                const outputSpan = document.createElement('span');
-                                outputSpan.className = 'output';
-                                outputSpan.textContent = `\n${result.output}`;
-                                
-                                resultElement.appendChild(toolSpan);
-                                resultElement.appendChild(timeSpan);
-                                resultElement.appendChild(outputSpan);
-                                
-                                consoleOutput.appendChild(resultElement);
+                                consoleOutput.appendChild(toolSpan);
+                                consoleOutput.appendChild(timeSpan);
+                                consoleOutput.appendChild(document.createTextNode(outputText));
+                                consoleOutput.scrollTop = consoleOutput.scrollHeight;
                             });
-                            consoleOutput.scrollTop = consoleOutput.scrollHeight;
                         }
                     }
                 }
