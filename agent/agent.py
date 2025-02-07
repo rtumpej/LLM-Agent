@@ -123,7 +123,6 @@ class Agent:
     def process_message(self, user_input: str, think_step: int, thinking: bool = False) -> tuple[str, list[dict]]:
         """Process a user message and return the response with tool results."""
         try:
-            print("STEP", think_step)
             if think_step == 0:
                 # Add user message to memory
                 self.memory.add_message("user", user_input)
@@ -154,11 +153,10 @@ class Agent:
                 else:
                     last_user_input = [m for m in messages if m['role'] == "user"][-1]['content']
                     think_msg = self.prompts.get_prompt("thinking",
-                        user_input=last_user_input, last_response=messages[-1]['content'])
+                        user_input=last_user_input)
                     messages.append({"role": "system", "content": think_msg})
 
             # Get response from OpenAI
-            print([d['role'] for d in messages])
             response = openai.ChatCompletion.create(
                 model=self.model,
                 messages=messages,
@@ -180,7 +178,8 @@ class Agent:
                 tool_results.append(self.execute_tool(tool_call))
                 # we remove the tool call from the response
                 response_text = response_text.replace(tool_call, "")
-                response_text_for_memory = response_text_for_memory.replace(tool_call, tool_results[-1]["output"])
+                tool_result = "<tool-output>"+ f"Tool {tool_results[-1]['tool_name']} executed with output:"  +tool_results[-1]["output"] + "</tool-output>"
+                response_text_for_memory = response_text_for_memory.replace(tool_call, tool_result)
 
             # Add assistant's response to memory
             self.memory.add_message("assistant", response_text_for_memory)

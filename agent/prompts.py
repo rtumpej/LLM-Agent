@@ -37,15 +37,10 @@ Guidelines:
             
             "error": "I encountered an error: {error_message}",
             "thinking": """
-- User request:
+Try to think what you can do to fulfill the request:
+<user_request>{user_input}</user_request>
 _____________
-{user_input}
-_____________
-- Your last response
-_____________
-{last_response}
-_____________
-IMPORTANT:If your last response fulfill user request, summarise the and nicely structure final response and finish message starting with "[FINAL]" and finish with "[/FINAL]"
+IMPORTANT:If your last response has all information required to fulfill user request (user_request), then nicely structure final response, using findings from previous tools and messages and finish message starting with "[FINAL]" and finish with "[/FINAL]"
 If not:
 - Follow Action Plan from you previous response
 - List possible next actions using your tools which can help you fulfill user request
