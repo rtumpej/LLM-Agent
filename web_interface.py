@@ -57,17 +57,21 @@ def chat():
 
     data = request.get_json()
     user_message = data.get('message', '')
+    thinking_step_limit = data.get('thinking_steps', 3)  # Get thinking_steps from request, default to 5
     
     def generate():
         has_more = True
         step = 0
-        thinking = True
-        thinking_step_limit = 5
+        thinking = thinking_step_limit > 1
         
         try:
-            while thinking and has_more and step < thinking_step_limit:
+            while has_more and step < thinking_step_limit:
                 # Process the message through your agent
                 response, tool_results = agent.process_message(user_message, think_step=step, thinking=thinking)
+
+                # Check if not thinking
+                if not thinking:
+                    response = "[FINAL]" + response+"[/FINAL]"
                 
                 # Check if we're done
                 has_more = "[/FINAL]" not in response
@@ -86,17 +90,13 @@ def chat():
                     }
                     formatted_tool_results.append(formatted_result)
                 
-                # Clean up response
-                #if "[/FINAL]" in response:
-                #    response = response.replace("[DONE]", "")
-                
                 if response.strip():
                     # Send response immediately
                     yield format_sse({
                         'response': format_response(response),
                         'tool_results': formatted_tool_results,
                         'step': step,
-                        'is_final': not thinking or not has_more or thinking_step_limit - step <= 0
+                        'is_final': not has_more or thinking_step_limit - step <= 1
                     })
                 
                 step += 1

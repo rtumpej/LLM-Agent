@@ -37,6 +37,11 @@
                         <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7">
                         <span id="temperature-value">0.7</span>
                     </div>
+                    <div class="menu-item">
+                        <label for="thinking-steps">Max Thinking Steps:</label>
+                        <input type="range" id="thinking-steps" min="1" max="10" step="1" value="5">
+                        <span id="thinking-steps-value">5</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -156,7 +161,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: content })
+                    body: JSON.stringify({ 
+                        message: content,
+                        thinking_steps: parseInt(document.getElementById('thinking-steps').value)
+                    })
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -312,9 +320,15 @@
         // Temperature slider handling
         const temperatureSlider = document.getElementById('temperature');
         const temperatureValue = document.getElementById('temperature-value');
+        const thinkingStepsSlider = document.getElementById('thinking-steps');
+        const thinkingStepsValue = document.getElementById('thinking-steps-value');
 
         temperatureSlider.addEventListener('input', function() {
             temperatureValue.textContent = this.value;
+        });
+
+        thinkingStepsSlider.addEventListener('input', function() {
+            thinkingStepsValue.textContent = this.value;
         });
 
         // Save settings when changed
@@ -325,7 +339,8 @@
             const settings = {
                 model: modelSelect.value,
                 temperature: temperatureSlider.value,
-                apiKey: apiKeyInput.value
+                apiKey: apiKeyInput.value,
+                thinkingSteps: thinkingStepsSlider.value
             };
             
             // Save to backend
@@ -377,12 +392,17 @@
                 temperatureValue.textContent = settings.temperature;
             }
             if (settings.apiKey) apiKeyInput.value = settings.apiKey;
+            if (settings.thinkingSteps) {
+                thinkingStepsSlider.value = parseInt(settings.thinkingSteps);
+                thinkingStepsValue.textContent = settings.thinkingSteps;
+            }
         }
 
         // Save settings when inputs change
         apiKeyInput.addEventListener('change', saveSettings);
         modelSelect.addEventListener('change', saveSettings);
         temperatureSlider.addEventListener('change', saveSettings);
+        thinkingStepsSlider.addEventListener('change', saveSettings);
 
         let toolColorMap = {};
         let nextColorIndex = 0;
