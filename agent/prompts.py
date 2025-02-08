@@ -36,26 +36,20 @@ Guidelines:
             "user": "{user_input}",
             
             "error": "I encountered an error: {error_message}",
-            "thinking": """
-Try to think what you can do to fulfill the request:
-<user_request>{user_input}</user_request>
-_____________
-IMPORTANT:If your last response has all information required to fulfill user request (user_request), then nicely structure final response, using findings from previous tools and messages and finish message starting with "[FINAL]" and finish with "[/FINAL]"
-If not:
-- Follow Action Plan from you previous response
-- List possible next actions using your tools which can help you fulfill user request
-- Judge if your last response was correct, correct it if necessary
-- Use your previous answers and output from tools to improve your and plan next action
-- Use tools to get additional information and actions to fulfill user request
-- When you have all information prepare a fulfilling response.
-- do not repeat previous action, try something new
-""",
-
-            "thinking_init": """Plan a research and action plan to fulfill user request:
--Describe 3 scenarios how to answer or fulfill the request, and pick the best one
--Explain topic which user is asking about
--List possible actions which can help you fulfill user request
-""",
+            "thinking": """Analyze the user request:
+            <user_request>{user_input}</user_request>
+            IMPORTANT: If your previous response fully satisfies the request, provide a structured final answer starting with [FINAL] and ending with [/FINAL]. Otherwise:
+            - Follow your previous action plan.
+            - List possible next actions using available tools.
+            - Review and adjust your previous response if necessary.
+            - Use prior answers and tool outputs to improve your plan.
+            - Avoid repeating previous actions; try new approaches.
+            """,
+  
+            "thinking_init": """Plan your research and action strategy as follows:
+            - Describe 3 scenarios for fulfilling the request and select the best one.
+            - Explain the topic the user is asking about.
+            - List possible actions to achieve the request."""
         }
 
     def get_prompt(self, prompt_type: str, **kwargs) -> str:
