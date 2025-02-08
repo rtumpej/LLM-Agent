@@ -48,6 +48,7 @@ If not:
 - Use your previous answers and output from tools to improve your and plan next action
 - Use tools to get additional information and actions to fulfill user request
 - When you have all information prepare a fulfilling response.
+- do not repeat previous action, try something new
 """,
 
             "thinking_init": """Plan a research and action plan to fulfill user request:

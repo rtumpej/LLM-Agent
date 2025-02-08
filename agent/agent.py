@@ -140,7 +140,9 @@ class Agent:
             ]
             
             # Add recent conversation history
-            history = self.memory.get_conversation_history(last_n=5)
+            number_of_messages = max(think_step + 2, 5)
+            
+            history = self.memory.get_conversation_history(last_n=number_of_messages)
             messages.extend([
                 {"role": msg["role"], "content": msg["content"]}
                 for msg in history
@@ -179,7 +181,8 @@ class Agent:
                 # we remove the tool call from the response
                 response_text = response_text.replace(tool_call, "")
                 tool_result = "<tool-output>"+ f"Tool {tool_results[-1]['tool_name']} executed with output:"  +tool_results[-1]["output"] + "</tool-output>"
-                response_text_for_memory = response_text_for_memory.replace(tool_call, tool_result)
+                
+                response_text_for_memory = response_text_for_memory.replace(tool_call, tool_call+tool_result)
 
             # Add assistant's response to memory
             self.memory.add_message("assistant", response_text_for_memory)

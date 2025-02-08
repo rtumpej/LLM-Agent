@@ -61,7 +61,7 @@
         <div class="viewer-pane">
             <h2 class="text-xl font-bold mb-2">Viewer</h2>
             <div id="viewer-content">
-                <!-- Viewer content will be inserted here -->
+                <img id="default-logo" src="marjan-logo.png" alt="Marjan Logo" class="default-logo">
             </div>
             <div class="resize-handle-horizontal"></div>
             <div class="resize-handle-vertical"></div>
@@ -92,7 +92,7 @@
                 <div class="input-container">
                     <textarea id="message-input" 
                         class="chat-input"
-                        placeholder="Type your message... (Shift+Enter for new line)"
+                        placeholder="Type your message..."
                         rows="1"
                         style="resize: none; min-height: 42px; max-height: 200px; overflow-y: auto;"
                     ></textarea>
@@ -495,6 +495,19 @@
 
         // Initialize resizable panes
         initResizablePanes();
+
+        const viewerContent = document.getElementById('viewer-content');
+        const defaultLogo = document.getElementById('default-logo');
+
+        // Function to toggle logo visibility
+        function toggleLogoVisibility() {
+            const hasContent = Array.from(viewerContent.children).some(child => child !== defaultLogo);
+            defaultLogo.style.display = hasContent ? 'none' : 'block';
+        }
+
+        // Call this function whenever content is added to or removed from the viewer
+        const observer = new MutationObserver(toggleLogoVisibility);
+        observer.observe(viewerContent, { childList: true, subtree: true });
     </script>
 </body>
 </html>

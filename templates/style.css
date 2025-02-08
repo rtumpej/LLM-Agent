@@ -86,7 +86,7 @@ body {
     grid-template-columns: 40fr 60fr;
     grid-template-rows: 60fr 40fr;
     gap: 1rem;
-    height: calc(100vh - 2rem);
+    height: 100vh;
     padding: 1rem;
     position: relative;
 }
@@ -105,8 +105,28 @@ body {
 
 #viewer-content {
     flex: 1;
-    overflow: hidden;
-    min-height: 0;
+    overflow: auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.default-logo {
+    max-width: 200px;
+    opacity: 0.7;
+    margin: auto;
+}
+
+#viewer-content:empty::before {
+    content: '';
+    background-image: url('marjan-logo.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 200px;
+    height: 200px;
+    opacity: 0.7;
 }
 
 .console-pane {
@@ -226,6 +246,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding-right: 0.5rem;
+    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
