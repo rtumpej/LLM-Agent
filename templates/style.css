@@ -1,22 +1,31 @@
 :root {
+    /* Core colors */
     --background-primary: #ffffff;
     --background-secondary: #f5f5f5;
     --text-primary: #333333;
     --text-secondary: #666666;
     --accent-color: #007bff;
     --border-color: #e0e0e0;
+    
+    /* Message backgrounds */
     --chat-user-bg: #e3f2fd;
     --chat-agent-bg: #f5f5f5;
-    --message-user-bg: #e3f2fd;
-    --message-agent-bg: #f5f5f5;
+    --message-user-bg: var(--chat-user-bg);
+    --message-agent-bg: var(--chat-agent-bg);
     
-    /* Light mode tool colors */
-    --tool-color-1: #00bcd4;  /* Cyan */
-    --tool-color-2: #9c27b0;  /* Purple */
-    --tool-color-3: #ff5722;  /* Deep Orange */
-    --tool-color-4: #3f51b5;  /* Indigo */
-    --tool-color-5: #4caf50;  /* Green */
-    --tool-color-6: #ff9800;  /* Orange */
+    /* Tool colors - Light mode */
+    --tool-color-1: #00bcd4;
+    --tool-color-2: #9c27b0;
+    --tool-color-3: #ff5722;
+    --tool-color-4: #3f51b5;
+    --tool-color-5: #4caf50;
+    --tool-color-6: #ff9800;
+    
+    /* Common values */
+    --border-radius-sm: 0.25rem;
+    --border-radius: 0.5rem;
+    --spacing-sm: 0.5rem;
+    --spacing: 1rem;
 }
 
 [data-theme="dark"] {
@@ -28,18 +37,19 @@
     --border-color: #404040;
     --chat-user-bg: #2d4a63;
     --chat-agent-bg: #2d2d2d;
-    --message-user-bg: #2d4a63;
-    --message-agent-bg: #2d2d2d;
+    --message-user-bg: var(--chat-user-bg);
+    --message-agent-bg: var(--chat-agent-bg);
     
-    /* Dark mode tool colors */
-    --tool-color-1: #4dd0e1;  /* Light Cyan */
-    --tool-color-2: #ce93d8;  /* Light Purple */
-    --tool-color-3: #ff8a65;  /* Light Deep Orange */
-    --tool-color-4: #7986cb;  /* Light Indigo */
-    --tool-color-5: #81c784;  /* Light Green */
-    --tool-color-6: #ffb74d;  /* Light Orange */
+    /* Tool colors - Dark mode */
+    --tool-color-1: #4dd0e1;
+    --tool-color-2: #ce93d8;
+    --tool-color-3: #ff8a65;
+    --tool-color-4: #7986cb;
+    --tool-color-5: #81c784;
+    --tool-color-6: #ffb74d;
 }
 
+/* Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -81,26 +91,43 @@ body {
 [data-theme="dark"] .sun { display: block; }
 [data-theme="dark"] .moon { display: none; }
 
+/* Layout Components */
 .main-container {
     display: grid;
     grid-template-columns: 40fr 60fr;
     grid-template-rows: 60fr 40fr;
-    gap: 1rem;
+    gap: var(--spacing);
     height: 100vh;
-    padding: 1rem;
+    padding: var(--spacing);
     position: relative;
+}
+
+/* Pane Styles */
+.viewer-pane,
+.console-pane,
+.chat-pane {
+    background-color: var(--background-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .viewer-pane {
     grid-column: 1;
     grid-row: 1;
-    background-color: var(--background-secondary);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+}
+
+.console-pane {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.chat-pane {
+    grid-column: 2;
+    grid-row: 1 / span 2;
 }
 
 #viewer-content {
@@ -129,16 +156,19 @@ body {
     opacity: 0.7;
 }
 
-.console-pane {
-    grid-column: 1;
-    grid-row: 2;
-    background-color: var(--background-secondary);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    position: relative;
-    display: flex;
-    flex-direction: column;
+.console-container {
+    flex: 1;
     min-height: 0;
+    position: relative;
+    background-color: var(--background-primary);
+    border-radius: var(--border-radius);
+}
+
+.console-text {
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 #console-output {
@@ -149,40 +179,13 @@ body {
     white-space: pre-wrap;
     word-wrap: break-word;
     font-family: Consolas, Monaco, 'Andale Mono', monospace;
-    padding: 1rem;
+    padding: var(--spacing);
     background-color: var(--background-primary);
     color: var(--text-primary);
-    border-radius: 0.375rem;
+    border-radius: var(--border-radius);
     font-size: 14px;
     line-height: 1.4;
     height: 0;
-}
-
-.console-container {
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    background-color: var(--background-primary);
-    border-radius: 0.375rem;
-}
-
-.console-text {
-    font-family: Consolas, Monaco, 'Andale Mono', monospace;
-    color: var(--text-primary);
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-.chat-pane {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    background-color: var(--background-secondary);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    min-height: 0;
 }
 
 .chat-wrapper {
@@ -246,29 +249,33 @@ body {
     flex: 1;
     overflow-y: auto;
     padding-right: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing);
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--spacing);
 }
 
+/* Message Styles */
 .message {
-    padding: 1rem;
-    margin: 0.5rem 0;
-    border-radius: 0.5rem;
+    padding: var(--spacing);
+    margin: var(--spacing-sm) 0;
+    border-radius: var(--border-radius);
     max-width: 80%;
+}
+
+.user-message,
+.agent-message {
+    color: var(--text-primary);
 }
 
 .user-message {
     background-color: var(--message-user-bg);
     margin-left: auto;
-    color: var(--text-primary);
 }
 
 .agent-message {
     background-color: var(--message-agent-bg);
     margin-right: auto;
-    color: var(--text-primary);
 }
 
 .agent-message.thinking {
@@ -290,7 +297,7 @@ body {
     padding: 0.5rem;
     background-color: var(--background-primary);
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius);
 }
 
 .chat-input {
@@ -308,7 +315,7 @@ body {
     display: none;
     padding: 0.75rem;
     background-color: var(--background-secondary);
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius);
     align-self: flex-start;
 }
 
@@ -337,12 +344,12 @@ body {
 
 ::-webkit-scrollbar-track {
     background: var(--background-secondary);
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -352,10 +359,10 @@ body {
 /* Code block styles */
 pre {
     background-color: #2d2d2d;  /* Dark gray background */
-    padding: 1rem;
-    border-radius: 0.5rem;
+    padding: var(--spacing);
+    border-radius: var(--border-radius);
     overflow-x: auto;
-    margin: 0.5rem 0;
+    margin: var(--spacing-sm) 0;
     border: 1px solid #404040;
     color: #ffffff;  /* White text for contrast */
 }
@@ -372,76 +379,35 @@ code {
 }
 
 /* Generic syntax highlighting for all languages */
-.token.comment {
-    color: #6A9955;  /* Green comments */
+.token {
+    &.comment { color: #6A9955; }
+    &.string { color: #ce9178; }
+    &.number { color: #b5cea8; }
+    &.keyword { color: #569cd6; }
+    &.function { color: #dcdcaa; }
+    &.class-name { color: #4ec9b0; }
+    &.operator { color: #d4d4d4; }
+    &.builtin { color: #4ec9b0; }
+    &.boolean { color: #569cd6; }
+    &.punctuation { color: #d4d4d4; }
+    &.property { color: #9cdcfe; }
+    &.tag { color: #569cd6; }
+    &.attr-name { color: #9cdcfe; }
+    &.attr-value { color: #ce9178; }
+    &.regex { color: #d16969; }
+    &.important { color: #569cd6; }
+    &.variable { color: #9cdcfe; }
+    &.constant { color: #4fc1ff; }
+    &.namespace { opacity: 0.7; }
 }
 
-.token.string {
-    color: #ce9178;  /* Orange-pink strings */
+.token.important,
+.token.bold {
+    font-weight: bold;
 }
 
-.token.number {
-    color: #b5cea8;  /* Light green numbers */
-}
-
-.token.keyword {
-    color: #569cd6;  /* Blue keywords */
-}
-
-.token.function {
-    color: #dcdcaa;  /* Yellow functions */
-}
-
-.token.class-name {
-    color: #4ec9b0;  /* Turquoise class names */
-}
-
-.token.operator {
-    color: #d4d4d4;  /* Light gray operators */
-}
-
-.token.builtin {
-    color: #4ec9b0;  /* Turquoise built-ins */
-}
-
-.token.boolean {
-    color: #569cd6;  /* Blue booleans */
-}
-
-.token.punctuation {
-    color: #d4d4d4;  /* Light gray punctuation */
-}
-
-.token.property {
-    color: #9cdcfe;  /* Light blue properties */
-}
-
-.token.tag {
-    color: #569cd6;  /* Blue tags */
-}
-
-.token.attr-name {
-    color: #9cdcfe;  /* Light blue attribute names */
-}
-
-.token.attr-value {
-    color: #ce9178;  /* Orange-pink attribute values */
-}
-
-.token.regex {
-    color: #d16969;  /* Red regex */
-}
-
-.token.important {
-    color: #569cd6;  /* Blue important */
-}
-
-.token.variable {
-    color: #9cdcfe;  /* Light blue variables */
-}
-
-.token.constant {
-    color: #4fc1ff;  /* Bright blue constants */
+.token.italic {
+    font-style: italic;
 }
 
 /* Language-specific overrides */
@@ -496,22 +462,9 @@ code {
     color: #808080;  /* Gray for prolog */
 }
 
-.token.namespace {
-    opacity: 0.7;  /* Slightly transparent */
-}
-
-.token.important,
-.token.bold {
-    font-weight: bold;
-}
-
-.token.italic {
-    font-style: italic;
-}
-
 /* Pane headers */
 h1, h2 {
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing);
     color: var(--text-primary);
 }
 
@@ -534,7 +487,7 @@ h1, h2 {
     border: none;
     padding: 0.5rem;
     cursor: pointer;
-    border-radius: 0.5rem;
+    border-radius: var(--border-radius);
     transition: background-color 0.3s;
     background-color: var(--background-secondary);
     width: 2.5rem;
@@ -558,8 +511,8 @@ h1, h2 {
     margin-top: 0.5rem;
     background-color: var(--background-primary);
     border: 1px solid var(--border-color);
-    border-radius: 0.5rem;
-    padding: 1rem;
+    border-radius: var(--border-radius);
+    padding: var(--spacing);
     min-width: 300px;
     opacity: 0;
     visibility: hidden;
@@ -606,7 +559,7 @@ h1, h2 {
 .menu-item select {
     padding: 0.5rem;
     border: 1px solid var(--border-color);
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius-sm);
     background-color: var(--background-secondary);
     color: var(--text-primary);
     font-size: 0.875rem;
@@ -664,7 +617,7 @@ h1, h2 {
 
 /* Code block styling */
 .code-block-wrapper {
-    margin: 1em 0;
+    margin: var(--spacing) 0;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     overflow: hidden;
