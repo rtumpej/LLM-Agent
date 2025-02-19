@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, Response
-from agent.agent import Agent  # Import Agent class from local agent directory
+from agent.langchain_agent import LangChainAgent  # Import LangChainAgent instead of Agent
 import os
 from dotenv import load_dotenv
 import re
@@ -14,7 +14,7 @@ app = Flask(__name__)
 # Initialize agent only if API key is available
 agent = None
 if os.getenv("OPENAI_API_KEY"):
-    agent = Agent()
+    agent = LangChainAgent()  # Use LangChainAgent instead of Agent
 
 def format_response(response):
     # First handle code blocks with language specification
